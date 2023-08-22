@@ -121,6 +121,8 @@ void fork_cmd(info_t *);
 int is_cmd(info_t *, char *);
 char *dup_chars(char *, int, int);
 char *find_path(info_t *, char *, char *);
+int path_exec(char *command, info_t *vars);
+char *find_path(char **env);
 
 /* loophsh.c */
 int loophsh(char **);
