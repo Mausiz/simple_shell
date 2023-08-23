@@ -75,6 +75,11 @@ typedef struct liststr
 typedef struct passinfo
 {
 	char *arg;
+	char **av;
+	char *buffer;
+	char **environ;
+	size_t count;
+	char **commands;
 	char **argv;
 	char *path;
 	int argc;
@@ -107,8 +112,8 @@ typedef struct passinfo
 typedef struct builtin
 {
 	char *type;
-	int (*func)(info_t *);
-} builtin_table;
+	int (*f)(info_t *);
+} builtins_t;
 
 
 /* toem_shloop.c */
@@ -134,8 +139,6 @@ int _putfd(char c, int fd);
 int _putsfd(char *str, int fd);
 
 /* toem_string.c */
-int _strlen(char *);
-int _strcmp(char *, char *);
 char *starts_with(const char *, const char *);
 char *_strcat(char *, char *);
 
@@ -157,16 +160,16 @@ char **strtow2(char *, char);
 /* toem_realloc.c */
 char *_memset(char *, char, unsigned int);
 void ffree(char **);
-void *_realloc(void *, unsigned int, unsigned int);
+char **make_environ(char **environ);
+void free_environ(char **env);
+void **_realloc(char **ptr, size_t *size);
 
 /* toem_memory.c */
 int bfree(void **);
 
 /* toem_atoi.c */
 int interactive(info_t *);
-int is_delim(char, char *);
 int _isalpha(int);
-int _atoi(char *);
 
 /* toem_errors1.c */
 int _erratoi(char *);
@@ -174,6 +177,35 @@ void print_error(info_t *, char *);
 int print_d(int, int);
 char *convert_number(long int, int, int);
 void remove_comments(char *);
+
+/* A whole other database that is necessary but confusing */
+strsize_t _puts(char *str);
+char *_uitoa(unsigned int count);
+int _atoi(char *str);
+void _environ(info_t *info);
+void new_setenviron(info_t *info);
+void new_unsetenviron(info_t *info);
+void new_exit(info_t *info);
+void (*check_for_builtins(info_t *info))(info_t *info);
+char *_strdup(char *strtodup);
+int _strcmp(char *strcmp1, char *strcmp2);
+char *strcat(char *strc1, char *strc2);
+
+void check_for_path(info_t *info);
+int path_exec(char *command, info_t *info);
+char *find_path(char **environ);
+int exec_cwd(info_t *info);
+int exec_cwd(info_t *info);
+int check_for_dir(char *str);
+void print_err(info_t *info, char *mssg);
+void _puts2(char *str);
+
+void add_key(info_t *info);
+char **find_key(char **environ, char *key);
+char *add_value(char *key, char *value);
+char **tokenize(char *buffer, char *delimit);
+
+*new_strtok(char *str, const char *delim);
 
 /* toem_builtin.c */
 int _myexit(info_t *);
