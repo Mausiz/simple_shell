@@ -6,8 +6,7 @@
  * Return: pointer to func/NULL
  */
 void (*check_for_builtins(info_t *info))(info_t *info)
-{
-	unsigned int k;
+{unsigned int k;
         builtins_t check[] =
         {
                 {"exit", new_exit},
