@@ -26,7 +26,7 @@ int path_exec(char *command, info_t *info)
 			wait(&info->status);
 			if (WIFEXITED(info->status))
 				info->status = WEXITSTATUS(info->status);
-			else if (WIFSIGNALED(info->status) && WTERMSIGNAL(info->status) == SIGINT)
+			else if (WIFSIGNALED(info->status) && WTERMSIG(info->status) == SIGINT)
 				info->status = 130;
 			return (0);
 		}
