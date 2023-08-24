@@ -70,7 +70,7 @@ char *add_val(char *key, char *val)
         char *new;
 
         len1 = strlen(key);
-        len2 = _strlen(val);
+        len2 = strlen(val);
 	new = malloc(sizeof(char) * (len1 + len2 + 2));
         if (new == NULL)
                 return (NULL);

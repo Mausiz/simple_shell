@@ -142,7 +142,7 @@ int exec_cwd(info_t *info)
 				if (WIFEXITED(info->status))
 					info->status = WEXITSTATUS
 						(info->status);
-                                else if (WIFSIGNALED(vars->status) && WTERMSIGNAL(info->status) == SIGINT)
+                                else if (WIFSIGNALED(info->status) && WTERMSIG(info->status) == SIGINT)
 					info->status = 130;
 				return (0);
 
