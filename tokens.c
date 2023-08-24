@@ -19,7 +19,7 @@ char **tokenz(char *buffer, char *delimit)
                 perror("Fatal Error!");
                 return (NULL);
         }
-        while ((tokens[i] = new_strtok(buffer, delimiter)) != NULL)
+        while ((tokens[i] = new_strtok(buffer, delimit)) != NULL)
         {
                 i++;
                 if (i == tcount)

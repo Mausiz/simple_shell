@@ -16,7 +16,7 @@ void add_key(info_t *info)
         if (newenviron == NULL)
         {
                 print_err(info, NULL);
-                info->exstatus = 127;
+                info->status = 127;
                 new_exit(info);
         }
         for (i = 0; info->environ[i] != NULL; i++)
@@ -46,7 +46,7 @@ char **find_key(char **environ, char *key)
 {
         unsigned int i, j, len;
 
-        len= _strlen(key);
+        len= strlen(key);
 
         for (i = 0; environ[i] != NULL; i++)
         {
@@ -54,7 +54,7 @@ char **find_key(char **environ, char *key)
                         if (key[j] != environ[i][j])
                                 break;
                 if (j == len && environ[i][j] == '=')
-                        return (&env[i]);
+                        return (&environ[i]);
         }
         return (NULL);
 }
@@ -70,8 +70,8 @@ char *add_val(char *key, char *val)
         char *new;
 
         len1 = _strlen(key);
-        len2 = _strlen(value)
-         new = malloc(sizeof(char) * (len1 + len2 + 2));
+        len2 = _strlen(val);
+	new = malloc(sizeof(char) * (len1 + len2 + 2));
         if (new == NULL)
                 return (NULL);
         for (i = 0; key[i] != '\0'; i++)

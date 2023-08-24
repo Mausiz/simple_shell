@@ -90,7 +90,6 @@ typedef struct passinfo
 	list_t *env;
 	list_t *history;
 	list_t *alias;
-	char **environ;
 	int env_changed;
 	int status;
 
@@ -125,7 +124,6 @@ void fork_cmd(info_t *);
 /* toem_parser.c */
 int is_cmd(info_t *, char *);
 char *dup_chars(char *, int, int);
-char *find_path(info_t *, char *, char *);
 int path_exec(char *command, info_t *vars);
 char *find_path(char **env);
 
@@ -144,8 +142,6 @@ char *_strcat(char *, char *);
 
 /* toem_string1.c */
 char *_strcpy(char *, char *);
-char *_strdup(const char *);
-void _puts(char *);
 int _putchar(char);
 
 /* toem_exits.c */
@@ -162,7 +158,7 @@ char *_memset(char *, char, unsigned int);
 void ffree(char **);
 char **make_environ(char **environ);
 void free_environ(char **env);
-void **_realloc(char **ptr, size_t *size);
+char **_realloc(char **ptr, size_t *size);
 
 /* toem_memory.c */
 int bfree(void **);
@@ -179,7 +175,7 @@ char *convert_number(long int, int, int);
 void remove_comments(char *);
 
 /* A whole other database that is necessary but confusing */
-strsize_t _puts(char *str);
+ssize_t _puts(char *str);
 char *_uitoa(unsigned int count);
 int _atoi(char *str);
 void _environ(info_t *info);
@@ -205,7 +201,7 @@ char **find_key(char **environ, char *key);
 char *add_value(char *key, char *value);
 char **tokenize(char *buffer, char *delimit);
 
-*new_strtok(char *str, const char *delim);
+char *new_strtok(char *str, const char *delim);
 
 /* toem_builtin.c */
 int _myexit(info_t *);

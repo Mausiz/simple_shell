@@ -19,9 +19,9 @@ char **_realloc(char **ptr, size_t *size)
                 free(ptr);
                 return (NULL);
         }
-        for (i = 0; i < (*size); i++)
+        for (j = 0; j < (*size); j++)
         {
-                new[i] = ptr[i];
+                new[j] = ptr[j];
         }
         *size +=10;
         free(ptr);

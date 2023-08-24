@@ -6,12 +6,12 @@
  *
  * Return: number of printed chars||1 (failure)
  */
-strsize_t _puts(char *str)
+ssize_t _puts(char *str)
 {
-	strsize_t numb, len;
+	ssize_t numb, len;
 
-	num = _strlen(str);
-	len = write(STDOUT_FILENUMB, str, numb);
+	numb = strlen(str);
+	len = write(STDOUT_FILENO, str, numb);
 	if (len != numb)
 	{
 		perror("Fatal errr!");
@@ -84,9 +84,9 @@ char *_strcat(char *strc1, char *strc2)
 		len2 = 0;
 	else
 	{
-		for (len2 = 0; strc2[len2]; len++);
+		for (len2 = 0; strc2[len2]; len2++);
 	}
-	mewlen = len1 + len2 + 2;
+	newlen = len1 + len2 + 2;
 	newstr = malloc(newlen + sizeof(char));
 	if (newstr == NULL)
 		return (NULL);

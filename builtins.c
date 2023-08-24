@@ -17,9 +17,9 @@ void (*check_for_builtins(info_t *info))(info_t *info)
                 {NULL, NULL}
         };
 
-        for (k = 0; check[k].f != NULL; i++)
+        for (k = 0; check[k].f != NULL; k++)
         {
-                if (_strcmpr(info->av[0], check[k].name) == 0)
+                if (_strcmp(info->av[0], check[k].name) == 0)
                         break;
         }
         if (check[k].f != NULL)
@@ -37,13 +37,13 @@ void new_exit(info_t *info)
 {
         int exstatus;
  
-        if (_strcmpr(info->av[0], "exit") == 0 &&
+        if (_strcmp(info->av[0], "exit") == 0 &&
 		       	info->av[1] != NULL)
 	{
-		exstatus = _atoi(info->[1]);
+		exstatus = _atoi(info->av[1]);
 		if (exstatus == -1)
 		{
-			info->exstatus = 2;
+			info->status = 2;
 			print_err(info, ": illegal number: ");
 			_puts2(info->av[1]);
 			_puts2("\n");
@@ -51,13 +51,13 @@ void new_exit(info_t *info)
 			info->commands = NULL;
 			return;
 		}
-		info->exstatus = exstatus;
+		info->status = exstatus;
 	}
 	free(info->buffer);
 	free(info->av);
 	free(info->commands);
-	free_environ(info->environn);
-	exit(info->exstatus);
+	free_environ(info->environ);
+	exit(info->status);
 }
 
 /**
@@ -70,12 +70,12 @@ void _environ(info_t *info)
 {
 	unsigned int i;
 
-	for (i = 0; info->env[i]; i++)
+	for (i = 0; info->environ[i]; i++)
 	{
-		_puts(info->env[i]);
+		_puts(info->environ[i]);
 		_puts("\n");
 	}
-	info->exstatus = 0;
+	info->status = 0;
 }
 
 /**
@@ -92,7 +92,7 @@ void new_setenviron(info_t *info)
 	if (info->av[1] == NULL || info->av[2] == NULL)
 	{
 		print_err(info, ": Number of arguments do not match\n");
-		info->exstatus = 2;
+		info->status = 2;
 		return;
 	}
 	key = find_key(info->environ, info->av[1]);
@@ -104,7 +104,7 @@ void new_setenviron(info_t *info)
 		if (var == NULL)
 		{
 			print_err(info, NULL);
-			fre(info->buffer);
+			free(info->buffer);
 			free(info->commands);
 			free(info->av);
 			free_environ(info->environ);
@@ -113,7 +113,7 @@ void new_setenviron(info_t *info)
 		free(*key);
 		*key = var;
 	}
-	info->exstatus = 0;
+	info->status = 0;
 }
 /**
  * new_unsetenviron - rm environ var
@@ -129,7 +129,7 @@ void new_unsetenviron(info_t *info)
         if (info->av[1] == NULL)
         {
                 print_err(info, ": Number of arguments do not match\n");
-                info->exstatus = 2;
+                info->status = 2;
                 return;
         }
         key = find_key(info->environ, info->av[1]);
@@ -154,7 +154,7 @@ void new_unsetenviron(info_t *info)
         free(*key);
         free(info->environ);
         info->environ = newenviron;
-	info->exstatus = 0;
+	info->status = 0;
 }
 /**
  * info = vars

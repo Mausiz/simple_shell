@@ -1,4 +1,4 @@
-include "shell.h"
+#include "shell.h"
 
 /**
  * sign_handler - handles c signal interrupt
@@ -29,39 +29,39 @@ int main(int argc __attribute__((unused)), char **argv, char **environ)
 {
 	size_t len_buffer = 0;
 	unsigned int is_pipe = 0, i;
-	info_t vars = {NULL, NULL, NULL, 0, NULL, 0, NULL};
+	info_t info = {NULL, NULL, NULL, 0, NULL, 0, NULL};
 
-	vars.argv = argv;
-	vars.env = make_env(environ);
+	info.argv = argv;
+	info.environ = make_environ(environ);
 	signal(SIGNINT, sign_handler);
 	if (!isatty(STDIN_FILENUMB))
 		is_pipe = 1;
 	if (is_pipe == 0)
 		_puts("$ ");
 	sign_flag = 0;
-	while (getline(&(vars.buffer), &len_buffer, stdin) != -1)
+	while (getline(&(info.buffer), &len_buffer, stdin) != -1)
 	{
 		sign_flag = 1;
-		vars.count++;
-		vars.fname = tokenize(vars.buffer, ";");
-		for (i = 0; vars.fname && vars.fname[i] != NULL; i++)
+		info.count++;
+		info.commands = tokenz(info.buffer, ";");
+		for (i = 0; info.commands && info.commands[i] != NULL; i++)
 		{
-			vars.av = tokenize(vars.fname[i], "\n \t \r");
-			if (vars.av && vars.av[0])
-				if (check_for_builtins(&vars) == NULL)
-					check_for_path(&vars);
+			vars.av = tokenz(info.commands[i], "\n \t \r");
+			if (info.av && info.av[0])
+				if (check_for_builtins(&info) == NULL)
+					check_for_path(&info);
 		}
-		free(vars.av);
-		free(vars.buffer);
-		free(vars.fname);
+		free(info.av);
+		free(info.buffer);
+		free(info.commands);
 		sign_flag = 0;
 		if (is_pipe == 0)
 			_puts("$ ");
-		vars.buffer = NULL;
+		info.buffer = NULL;
 	}
 	if (is_pipe == 0)
 		_puts("\n");
-	free_env(vars.env);
-	free(vars.buffer);
-	exit(vars.status);
+	free_environ(info.environ);
+	free(info.buffer);
+	exit(info.status);
 }

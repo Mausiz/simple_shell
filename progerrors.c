@@ -12,7 +12,7 @@ void print_err(info_t *info, char *msg)
 
         _puts2(info->argv[0]);
         _puts2(": ");
-        count - _uitoa(info->count);
+        count = _uitoa(info->count);
         _puts2(count);
         free(count);
         _puts2(": ");
@@ -32,10 +32,10 @@ void print_err(info_t *info, char *msg)
  */
 void _puts2(char *str)
 {
-        strsize_t numb, len;
+        ssize_t numb, len;
 
-        numb = _strlen(str);
-	len = write(STDERR_FILENUMB, str, numb);
+        numb = strlen(str);
+	len = write(STDERR_FILENO, str, numb);
 	if (len != numb)
 	{
 		perror("Fatal Error");
@@ -56,16 +56,16 @@ char *_uitoa(unsigned int count)
 	tmp = count;
 	for (xters = 0; tmp != 0; xters++)
 		tmp /= 10;
-	numbstr = malloc(sizeof(char) * (digits + 1));
+	numbstr = malloc(sizeof(char) * (xters + 1));
 	if (numbstr == NULL)
 	{
 		perror("Fatal Error!(1)");
 		exit(127);
 	}
-	numbstr[digits] = '\0';
-	for (--digits; count; --digits)
+	numbstr[xters] = '\0';
+	for (--xters; count; --xters)
 	{
-		numbstr[digits] = (count % 10) + '0';
+		numbstr[xters] = (count % 10) + '0';
 		count /= 10;
 	}
 	return (numbstr);

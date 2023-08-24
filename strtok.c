@@ -28,36 +28,36 @@ char *new_strtok(char *str, const char *delim)
 {
 	static char *tok_start;
 	static char *nxt_tok;
-	unsigned int c;
+	unsigned int j;
 
 	if (str != NULL)
 		nxt_tok = str;
 	tok_start = nxt_tok;
 	if (tok_start == NULL)
 		return (NULL);
-	for (i = 0; nxt_tok[i] != '\0'; i++)
+	for (j = 0; nxt_tok[j] != '\0'; j++)
 	{
-		if (check_match(nxt_tok[i], delim) == 0)
+		if (check_match(nxt_tok[j], delim) == 0)
 			break;
 	}
-	if (nxt_tok[i] == '\0' || nxt_tok[i] == '#')
+	if (nxt_tok[j] == '\0' || nxt_tok[j] == '#')
 	{
 		nxt_tok = NULL;
 		return (NULL);
 	}
-	tok_start = nxt_tok + i;
+	tok_start = nxt_tok + j;
 	nxt_tok = tok_start;
-	for (i = 0; nxt_tok[i] != '\0'; i++)
+	for (j = 0; nxt_tok[j] != '\0'; j++)
 	{
-		if (check_match(nxt_tok[i], delim) == 1)
+		if (check_match(nxt_tok[j], delim) == 1)
 			break;
 	}
-	if (nxt_tok[i] == '\0')
+	if (nxt_tok[j] == '\0')
 		nxt_tok = NULL;
 	else
 	{
-		mxt_tok[i] = '\0';
-		nxt_tok = nxt_tok + i + 1;
+		nxt_tok[j] = '\0';
+		nxt_tok = nxt_tok + j + 1;
 		if (*nxt_tok == '\0')
 			nxt_tok = NULL;
 	}
