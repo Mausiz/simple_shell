@@ -46,7 +46,7 @@ int main(int argc __attribute__((unused)), char **argv, char **environ)
 		info.commands = tokenize(info.buffer, ";");
 		for (i = 0; info.commands && info.commands[i] != NULL; i++)
 		{
-			vars.av = tokenz(info.commands[i], "\n \t \r");
+			info.av = tokenize(info.commands[i], "\n \t \r");
 			if (info.av && info.av[0])
 				if (check_for_builtins(&info) == NULL)
 					check_for_path(&info);
