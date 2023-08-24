@@ -185,7 +185,6 @@ int new_exit(info_t *info);
 void (*check_for_builtins(info_t *info))(info_t *info);
 char *_strdup(char *strtodup);
 int _strcmp(char *strcmp1, char *strcmp2);
-char *strcat(char *strc1, char *strc2);
 
 void check_for_path(info_t *info);
 int path_exec(char *command, info_t *info);
