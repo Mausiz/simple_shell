@@ -33,8 +33,8 @@ int main(int argc __attribute__((unused)), char **argv, char **environ)
 
 	info.argv = argv;
 	info.environ = make_environ(environ);
-	signal(SIGNINT, sign_handler);
-	if (!isatty(STDIN_FILENUMB))
+	signal(SIGINT, sign_handler);
+	if (!isatty(STDIN_FILENO))
 		is_pipe = 1;
 	if (is_pipe == 0)
 		_puts("$ ");
@@ -43,7 +43,7 @@ int main(int argc __attribute__((unused)), char **argv, char **environ)
 	{
 		sign_flag = 1;
 		info.count++;
-		info.commands = tokenz(info.buffer, ";");
+		info.commands = tokenize(info.buffer, ";");
 		for (i = 0; info.commands && info.commands[i] != NULL; i++)
 		{
 			vars.av = tokenz(info.commands[i], "\n \t \r");

@@ -23,7 +23,7 @@ int path_exec(char *command, info_t *info)
 		}
 		else
 		{
-			wait(info->status);
+			wait(&info->status);
 			if (WIFEXITED(info->status))
 				info->status = WEXITSTATUS(info->status);
 			else if (WIFSIGNALED(info->status) && WTERMSIGNAL(info->status) == SIGINT)
@@ -84,7 +84,7 @@ void check_for_path(info_t *info)
 		if (path != NULL)
 		{
 			path_dup = _strdup(path + 5);
-			path_tokens = tokenz(path_dup, ":");
+			path_tokens = tokenize(path_dup, ":");
 			for (i = 0; path_tokens && path_tokens[i]; i++, free(check))
 			{
 				check = _strcat(path_tokens[i], info->av[0]);
@@ -139,10 +139,10 @@ int exec_cwd(info_t *info)
 			else
 			{
                                 wait(&info->status);
-				if (IIFEXITED(info->status))
-					info->status = IEXITSTATUS
+				if (WIFEXITED(info->status))
+					info->status = WEXITSTATUS
 						(info->status);
-                                else if (IIFSIGNALED(vars->status) && ITERMSIGNAL(info->status) == SIGNINT)
+                                else if (WIFSIGNALED(vars->status) && WTERMSIGNAL(info->status) == SIGINT)
 					info->status = 130;
 				return (0);
 

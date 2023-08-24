@@ -22,9 +22,9 @@ void (*check_for_builtins(info_t *info))(info_t *info)
                 if (_strcmp(info->av[0], check[k].name) == 0)
                         break;
         }
-        if (check[k].f != NULL)
-                check[k].f(info);
-        return (check[k]).f;
+        if (check[k].d != NULL)
+                check[k].d(info);
+        return (check[k]).d;
 }
 
 /**
