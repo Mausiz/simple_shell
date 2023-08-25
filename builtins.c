@@ -33,7 +33,7 @@ void (*check_for_builtins(info_t *info))(info_t *info)
  * 
  * Return: void
  */
-void new_exit(info_t *info)
+int new_exit(info_t *info)
 {
         int exstatus;
  
@@ -84,7 +84,7 @@ void _environ(info_t *info)
  *
  * Return: void
  */
-void new_setenviron(info_t *info)
+int new_setenviron(info_t *info)
 {
 	char **key;
 	char *var;
@@ -121,7 +121,7 @@ void new_setenviron(info_t *info)
  *
  * Return: void
  */
-void new_unsetenviron(info_t *info)
+int new_unsetenviron(info_t *info)
 {
         char **key, **newenviron;
         unsigned int i, j;
