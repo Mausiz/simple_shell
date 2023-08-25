@@ -5,7 +5,7 @@
  *
  * Return: pointer to func/NULL
  */
-int (*check_for_builtins(info_t *info))(info_t *info)
+int (*)(info_t *)
 {
 	unsigned int k;
 	builtins_t check[] =
