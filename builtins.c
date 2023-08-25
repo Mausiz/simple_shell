@@ -1,159 +1,157 @@
 #include "shell.h"
-#include "shell.h"
 
-void (*check_for_builtins(info_t *info))(info_t *info)
+/**
+ * check_for_builtins - checks if the command is a builtin
+ * @vars: variables
+ * Return: pointer to the function or NULL
+ */
+void (*check_for_builtins(vars_t *vars))(vars_t *vars)
 {
-    unsigned int k;
-    builtins_t check[] =
-    {
-        {"exit", new_exit},
-        {"environ", _environ},
-        {"setenviron", new_setenviron},
-        {"unsetenviron", new_unsetenviron},
-        {NULL, NULL}
-    };
+	unsigned int i;
+	builtins_t check[] = {
+		{"exit", new_exit},
+		{"env", _env},
+		{"setenv", new_setenv},
+		{"unsetenv", new_unsetenv},
+		{NULL, NULL}
+	};
 
-    for (k = 0; check[k].f != NULL; k++)
-    {
-        if (_strcmp(info->av[0], check[k].type) == 0)
-            break;
-    }
-    if (check[k].f != NULL)
-        check[k].f(info);
-    return check[k].f;
+	for (i = 0; check[i].f != NULL; i++)
+	{
+		if (_strcmpr(vars->av[0], check[i].name) == 0)
+			break;
+	}
+	if (check[i].f != NULL)
+		check[i].f(vars);
+	return (check[i].f);
 }
 
 /**
- * new_exit - exit prog
- * @info: vars(exstatus = exit status)
- * 
+ * new_exit - exit program
+ * @vars: variables
  * Return: void
  */
-void new_exit(info_t *info)
+void new_exit(vars_t *vars)
 {
-        int exstatus;
- 
-        if (_strcmp(info->av[0], "exit") == 0 &&
-		       	info->av[1] != NULL)
+	int status;
+
+	if (_strcmpr(vars->av[0], "exit") == 0 && vars->av[1] != NULL)
 	{
-		exstatus = _atoi(info->av[1]);
-		if (exstatus == -1)
+		status = _atoi(vars->av[1]);
+		if (status == -1)
 		{
-			info->status = 2;
-			print_err(info, ": illegal number: ");
-			_puts2(info->av[1]);
+			vars->status = 2;
+			print_error(vars, ": Illegal number: ");
+			_puts2(vars->av[1]);
 			_puts2("\n");
-			free(info->commands);
-			info->commands = NULL;
+			free(vars->commands);
+			vars->commands = NULL;
 			return;
 		}
-		info->status = exstatus;
+		vars->status = status;
 	}
-	free(info->buffer);
-	free(info->av);
-	free(info->commands);
-	free_environ(info->environ);
-	exit(info->status);
+	free(vars->buffer);
+	free(vars->av);
+	free(vars->commands);
+	free_env(vars->env);
+	exit(vars->status);
 }
 
 /**
- * _environ - prints current environ
- * @info: struct of vars
- * 
- * Return: void
+ * _env - prints the current environment
+ * @vars: struct of variables
+ * Return: void.
  */
-void _environ(info_t *info)
+void _env(vars_t *vars)
 {
 	unsigned int i;
 
-	for (i = 0; info->environ[i]; i++)
+	for (i = 0; vars->env[i]; i++)
 	{
-		_puts(info->environ[i]);
+		_puts(vars->env[i]);
 		_puts("\n");
 	}
-	info->status = 0;
+	vars->status = 0;
 }
 
 /**
- * new_setenviron - create new environ var or edit existing var
- * @info: pointer to struct of vars
+ * new_setenv - create a new environment variable, or edit an existing variable
+ * @vars: pointer to struct of variables
  *
  * Return: void
  */
-void new_setenviron(info_t *info)
+void new_setenv(vars_t *vars)
 {
 	char **key;
 	char *var;
 
-	if (info->av[1] == NULL || info->av[2] == NULL)
+	if (vars->av[1] == NULL || vars->av[2] == NULL)
 	{
-		print_err(info, ": Number of arguments do not match\n");
-		info->status = 2;
+		print_error(vars, ": Incorrect number of arguments\n");
+		vars->status = 2;
 		return;
 	}
-	key = find_key(info->environ, info->av[1]);
+	key = find_key(vars->env, vars->av[1]);
 	if (key == NULL)
-		add_key(info);
+		add_key(vars);
 	else
 	{
-		var = add_value(info->av[1], info->av[2]);
+		var = add_value(vars->av[1], vars->av[2]);
 		if (var == NULL)
 		{
-			print_err(info, NULL);
-			free(info->buffer);
-			free(info->commands);
-			free(info->av);
-			free_environ(info->environ);
+			print_error(vars, NULL);
+			free(vars->buffer);
+			free(vars->commands);
+			free(vars->av);
+			free_env(vars->env);
 			exit(127);
 		}
 		free(*key);
 		*key = var;
 	}
-	info->status = 0;
+	vars->status = 0;
 }
+
 /**
- * new_unsetenviron - rm environ var
- * @info: pointer to a struct of var
+ * new_unsetenv - remove an environment variable
+ * @vars: pointer to a struct of variables
  *
  * Return: void
  */
-void new_unsetenviron(info_t *info)
+void new_unsetenv(vars_t *vars)
 {
-        char **key, **newenviron;
-        unsigned int i, j;
+	char **key, **newenv;
 
-        if (info->av[1] == NULL)
-        {
-                print_err(info, ": Number of arguments do not match\n");
-                info->status = 2;
-                return;
-        }
-        key = find_key(info->environ, info->av[1]);
-        if (key == NULL)
-        {
-                print_err(info, ": Variable not found");
-                return;
-        }
-        for (i = 0; info->environ[i] != NULL; i++);
-        newenviron = malloc(sizeof(char *) * i);
-        if (newenviron == NULL)
-        {
-                print_err(info, NULL);
-                info->status = 127;
-                new_exit(info);
-        }
-        for (i = 0; info->environ[i] != *key; i++)
-                newenviron[i] = info->environ[i];
-        for (j = i + 1; info->environ[j] != NULL; j++, i++)
-                newenviron[i] = info->environ[j];
-        newenviron[i] = NULL;
-        free(*key);
-        free(info->environ);
-        info->environ = newenviron;
-	info->status = 0;
+	unsigned int i, j;
+
+	if (vars->av[1] == NULL)
+	{
+		print_error(vars, ": Incorrect number of arguments\n");
+		vars->status = 2;
+		return;
+	}
+	key = find_key(vars->env, vars->av[1]);
+	if (key == NULL)
+	{
+		print_error(vars, ": No variable to unset");
+		return;
+	}
+	for (i = 0; vars->env[i] != NULL; i++)
+		;
+	newenv = malloc(sizeof(char *) * i);
+	if (newenv == NULL)
+	{
+		print_error(vars, NULL);
+		vars->status = 127;
+		new_exit(vars);
+	}
+	for (i = 0; vars->env[i] != *key; i++)
+		newenv[i] = vars->env[i];
+	for (j = i + 1; vars->env[j] != NULL; j++, i++)
+		newenv[i] = vars->env[j];
+	newenv[i] = NULL;
+	free(*key);
+	free(vars->env);
+	vars->env = newenv;
+	vars->status = 0;
 }
-/**
- * info = vars
- * exstatus = status
- * environ = env
- */

@@ -1,39 +1,41 @@
 #include "shell.h"
-/**
- * make_environ - make shell environ from environ passed to main
- * @environ: environ passed to main
- *
- * Return: pointer to the new environ
- */
-char **make_environ(char **environ)
-{
-        char **newenviron = NULL;
-        size_t i;
 
-        for (i = 0; environ[i] != NULL; i++);
-        newenviron = malloc(sizeof(char *) * (i + 1));
-        if (newenviron == NULL)
-        {
-                perror("Fatal Error");
-                exit(1);
-        }
-        for (i = 0; environ[i] != NULL; i++)
-                newenviron[i] = _strdup(environ[i]);
-        newenviron[i] = NULL;
-        return (newenviron);
-}
 /**
- * free_environ - free shell environ
- * @environ: shell's environ
+ * make_env - make the shell environment from the environment passed to main
+ * @env: environment passed to main
  *
- * Return: nada
+ * Return: pointer to the new environment
  */
-void free_environ(char **environ)
+char **make_env(char **env)
 {
-        unsigned int i;
+	char **newenv = NULL;
+	size_t i;
 
-        for (i = 0; environ[i] != NULL; i++)
-                free(environ[i]);
-        free(environ);
+	for (i = 0; env[i] != NULL; i++)
+		;
+	newenv = malloc(sizeof(char *) * (i + 1));
+	if (newenv == NULL)
+	{
+		perror("Fatal Error");
+		exit(1);
+	}
+	for (i = 0; env[i] != NULL; i++)
+		newenv[i] = _strdup(env[i]);
+	newenv[i] = NULL;
+	return (newenv);
 }
 
+/**
+ * free_env - free the shell's environment
+ * @env: shell's environment
+ *
+ * Return: void
+ */
+void free_env(char **env)
+{
+	unsigned int i;
+
+	for (i = 0; env[i] != NULL; i++)
+		free(env[i]);
+	free(env);
+}

@@ -1,10 +1,10 @@
 #include "shell.h"
 /**
- * check_match - checks if k matches any in str
- * @k: character to check
- * @str: str to check
+ * check_match - checks if a character matches any in a string
+ * @c: character to check
+ * @str: string to check
  *
- * Return: 1 (match), 0 (nada)
+ * Return: 1 if match, 0 if not
  */
 unsigned int check_match(char c, const char *str)
 {
@@ -17,49 +17,50 @@ unsigned int check_match(char c, const char *str)
 	}
 	return (0);
 }
+
 /**
  * new_strtok - custom strtok
- * @str: str to tokenize
+ * @str: string to tokenize
  * @delim: delimiter to tokenize against
  *
- * Return: pointer to nxt token|| NULL
+ * Return: pointer to the next token or NULL
  */
 char *new_strtok(char *str, const char *delim)
 {
-	static char *tok_start;
-	static char *nxt_tok;
-	unsigned int j;
+	static char *token_start;
+	static char *next_token;
+	unsigned int i;
 
 	if (str != NULL)
-		nxt_tok = str;
-	tok_start = nxt_tok;
-	if (tok_start == NULL)
+		next_token = str;
+	token_start = next_token;
+	if (token_start == NULL)
 		return (NULL);
-	for (j = 0; nxt_tok[j] != '\0'; j++)
+	for (i = 0; next_token[i] != '\0'; i++)
 	{
-		if (check_match(nxt_tok[j], delim) == 0)
+		if (check_match(next_token[i], delim) == 0)
 			break;
 	}
-	if (nxt_tok[j] == '\0' || nxt_tok[j] == '#')
+	if (next_token[i] == '\0' || next_token[i] == '#')
 	{
-		nxt_tok = NULL;
+		next_token = NULL;
 		return (NULL);
 	}
-	tok_start = nxt_tok + j;
-	nxt_tok = tok_start;
-	for (j = 0; nxt_tok[j] != '\0'; j++)
+	token_start = next_token + i;
+	next_token = token_start;
+	for (i = 0; next_token[i] != '\0'; i++)
 	{
-		if (check_match(nxt_tok[j], delim) == 1)
+		if (check_match(next_token[i], delim) == 1)
 			break;
 	}
-	if (nxt_tok[j] == '\0')
-		nxt_tok = NULL;
+	if (next_token[i] == '\0')
+		next_token = NULL;
 	else
 	{
-		nxt_tok[j] = '\0';
-		nxt_tok = nxt_tok + j + 1;
-		if (*nxt_tok == '\0')
-			nxt_tok = NULL;
+		next_token[i] = '\0';
+		next_token = next_token + i + 1;
+		if (*next_token == '\0')
+			next_token = NULL;
 	}
-	return (tok_start);
+	return (token_start);
 }

@@ -1,91 +1,76 @@
 #include "shell.h"
+
 /**
- * print_err - prints error msg to std error
- * @info: pointer to struct of vars
- * @msg: msg to print
+ * print_error - prints error messages to standard error
+ * @vars: pointer to struct of variables
+ * @msg: message to print
  *
  * Return: void
  */
-void print_err(info_t *info, char *msg)
+void print_error(vars_t *vars, char *msg)
 {
-        char *count;
+	char *count;
 
-        _puts2(info->argv[0]);
-        _puts2(": ");
-        count = _uitoa(info->count);
-        _puts2(count);
-        free(count);
-        _puts2(": ");
-        _puts2(info->av[0]);
-        if (msg)
-        {
-                _puts2(msg);
-        }
-        else
-                perror("");
+	_puts2(vars->argv[0]);
+	_puts2(": ");
+	count = _uitoa(vars->count);
+	_puts2(count);
+	free(count);
+	_puts2(": ");
+	_puts2(vars->av[0]);
+	if (msg)
+	{
+		_puts2(msg);
+	}
+	else
+		perror("");
 }
+
 /**
- * _puts2 - prints a str to std error
- * @str: str to print
+ * _puts2 - prints a string to standard error
+ * @str: string to print
  *
- * Return: nada
+ * Return: void
  */
 void _puts2(char *str)
 {
-        ssize_t numb, len;
+	ssize_t num, len;
 
-        numb = strlen(str);
-	len = write(STDERR_FILENO, str, numb);
-	if (len != numb)
+	num = _strlen(str);
+	len = write(STDERR_FILENO, str, num);
+	if (len != num)
 	{
 		perror("Fatal Error");
 		exit(1);
 	}
+
 }
+
 /**
- * _uitoa - converts unsigned int to str
+ * _uitoa - converts an unsigned int to a string
  * @count: unsigned int to convert
  *
- * Return: pointer to the converted str
+ * Return: pointer to the converted string
  */
 char *_uitoa(unsigned int count)
 {
-	char *numbstr;
-	unsigned int tmp, xters;
+	char *numstr;
+	unsigned int tmp, digits;
 
 	tmp = count;
-	for (xters = 0; tmp != 0; xters++)
+	for (digits = 0; tmp != 0; digits++)
 		tmp /= 10;
-	numbstr = malloc(sizeof(char) * (xters + 1));
-	if (numbstr == NULL)
+	numstr = malloc(sizeof(char) * (digits + 1));
+	if (numstr == NULL)
 	{
-		perror("Fatal Error!(1)");
+		perror("Fatal Error1");
 		exit(127);
 	}
-	numbstr[xters] = '\0';
-	for (--xters; count; --xters)
+	numstr[digits] = '\0';
+	for (--digits; count; --digits)
 	{
-		numbstr[xters] = (count % 10) + '0';
+		numstr[digits] = (count % 10) + '0';
 		count /= 10;
 	}
-	return (numbstr);
+	return (numstr);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

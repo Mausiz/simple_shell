@@ -1,96 +1,97 @@
 #include "shell.h"
 
 /**
- * path_exec - executes commands in the path()
- * @command: command path
- * @info: pointer to var struct
+ * path_execute - executes a command in the path
+ * @command: full path to the command
+ * @vars: pointer to struct of variables
  *
- * Return: 0 (success), 1 (failure)
+ * Return: 0 on succcess, 1 on failure
  */
-int path_exec(char *command, info_t *info)
+int path_execute(char *command, vars_t *vars)
 {
-	pid_t pid;
+	pid_t child_pid;
 
 	if (access(command, X_OK) == 0)
 	{
-		pid = fork();
-		if (pid == -1)
-			print_err(info, NULL);
-		if (pid == 0)
+		child_pid = fork();
+		if (child_pid == -1)
+			print_error(vars, NULL);
+		if (child_pid == 0)
 		{
-			if (execve(command, info->av, info->environ) == -1)
-				print_err(info, NULL);
+			if (execve(command, vars->av, vars->env) == -1)
+				print_error(vars, NULL);
 		}
 		else
 		{
-			wait(&info->status);
-			if (WIFEXITED(info->status))
-				info->status = WEXITSTATUS(info->status);
-			else if (WIFSIGNALED(info->status) && WTERMSIG(info->status) == SIGINT)
-				info->status = 130;
+			wait(&vars->status);
+			if (WIFEXITED(vars->status))
+				vars->status = WEXITSTATUS(vars->status);
+			else if (WIFSIGNALED(vars->status) && WTERMSIG(vars->status) == SIGINT)
+				vars->status = 130;
 			return (0);
 		}
-		info->status = 127;
+		vars->status = 127;
 		return (1);
 	}
 	else
 	{
-		print_err(info, ": Permission denied\n");
-		info->status = 126;
+		print_error(vars, ": Permission denied\n");
+		vars->status = 126;
 	}
 	return (0);
 }
 
 /**
- * find_path -...
- * @env: arr of env vars
+ * find_path - finds the PATH variable
+ * @env: array of environment variables
  *
- * Return: pointer to the node with PATH //NULL (1)
+ * Return: pointer to the node that contains the PATH, or NULL on failure
  */
-char *find_path(char **environ)
+char *find_path(char **env)
 {
 	char *path = "PATH=";
 	unsigned int i, j;
 
-	for (i = 0; environ[i] != NULL; i++)
+	for (i = 0; env[i] != NULL; i++)
 	{
 		for (j = 0; j < 5; j++)
-			if (path[j] != environ[i][j])
+			if (path[j] != env[i][j])
 				break;
 		if (j == 5)
 			break;
 	}
-	return (environ[i]);
+	return (env[i]);
+
 }
 
 /**
- * check_for_path - checks if cmd is in path
- * @info: ...
+ * check_for_path - checks if the command is in the PATH
+ * @vars: variables
  *
  * Return: void
  */
-void check_for_path(info_t *info)
+void check_for_path(vars_t *vars)
 {
 	char *path, *path_dup = NULL, *check = NULL;
-	unsigned int i = 0, k = 0;
+	unsigned int i = 0, r = 0;
 	char **path_tokens;
 	struct stat buf;
 
-	if (check_for_dir(info->av[0]))
-		k = exec_cwd(info);
+	if (check_for_dir(vars->av[0]))
+		r = execute_cwd(vars);
 	else
 	{
-		path = find_path(info->environ);
+		path = find_path(vars->env);
 		if (path != NULL)
 		{
 			path_dup = _strdup(path + 5);
 			path_tokens = tokenize(path_dup, ":");
 			for (i = 0; path_tokens && path_tokens[i]; i++, free(check))
 			{
-				check = _strcat(path_tokens[i], info->av[0]);
+				check = _strcat(path_tokens[i], vars->av[0]);
 				if (stat(check, &buf) == 0)
 				{
-					k = path_exec(check, info);
+					r = path_execute(check, vars);
 					free(check);
 					break;
 				}
@@ -98,83 +99,81 @@ void check_for_path(info_t *info)
 			free(path_dup);
 			if (path_tokens == NULL)
 			{
-				info->status = 127;
-				new_exit(info);
+				vars->status = 127;
+				new_exit(vars);
 			}
 		}
 		if (path == NULL || path_tokens[i] == NULL)
 		{
-			print_err(info, ": no var\n");
-			info->status = 127;
+			print_error(vars, ": not found\n");
+			vars->status = 127;
 		}
 		free(path_tokens);
 	}
-	if (k == 1)
-		new_exit(info);
+	if (r == 1)
+		new_exit(vars);
 }
 
 /**
- * exec_cwd - execs cmd in cwd(current working dir)
- * @vars: ponter to struct of vars
+ * execute_cwd - executes the command in the current working directory
+ * @vars: pointer to struct of variables
  *
- * Return: 0 (success) || 1 (failure)
+ * Return: 0 on success, 1 on failure
  */
-int exec_cwd(info_t *info)
+int execute_cwd(vars_t *vars)
 {
-        pid_t pid;
-        struct stat buf;
+	pid_t child_pid;
+	struct stat buf;
 
-        if (stat(info->av[0], &buf) == 0)
-        {
-        	if (access(info->av[0], X_OK) == 0)
-                {
-                        pid = fork();
-                        if (pid == -1)
-                                print_err(info, NULL);
-                        if (pid == 0)
-                        {
-				if (execve(info->av[0], info->av, info->environ) == -1)
-					print_err(info, NULL);
+	if (stat(vars->av[0], &buf) == 0)
+	{
+		if (access(vars->av[0], X_OK) == 0)
+		{
+			child_pid = fork();
+			if (child_pid == -1)
+				print_error(vars, NULL);
+			if (child_pid == 0)
+			{
+				if (execve(vars->av[0], vars->av, vars->env) == -1)
+					print_error(vars, NULL);
 			}
 			else
 			{
-                                wait(&info->status);
-				if (WIFEXITED(info->status))
-					info->status = WEXITSTATUS
-						(info->status);
-                                else if (WIFSIGNALED(info->status) && WTERMSIG(info->status) == SIGINT)
-					info->status = 130;
+				wait(&vars->status);
+				if (WIFEXITED(vars->status))
+					vars->status = WEXITSTATUS(vars->status);
+				else if (WIFSIGNALED(vars->status) && WTERMSIG(vars->status) == SIGINT)
+					vars->status = 130;
 				return (0);
-
-                        }
-			info->status = 127;
+			}
+			vars->status = 127;
 			return (1);
-                }
+		}
 		else
 		{
-			print_err(info, ": Permission denied\n");
-			info->status = 126;
+			print_error(vars, ": Permission denied\n");
+			vars->status = 126;
 		}
-	return (0);
+			return (0);
 	}
-	print_err(info, "not found\n");
-	info->status = 127;
+	print_error(vars, ": not found\n");
+	vars->status = 127;
 	return (0);
 }
 
 /**
- * check_for_dir - checks if cmd is the dir path
- * @str: cmd
+ * check_for_dir - checks if the command is a part of a path
+ * @str: command
  *
- * Return: 1 (success), || 0 (failure)
+ * Return: 1 on success, 0 on failure
  */
 int check_for_dir(char *str)
 {
-	unsigned int j;
+	unsigned int i;
 
-	for (j = 0; str[j]; j++)
+	for (i = 0; str[i]; i++)
 	{
-		if (str[j] == '/')
+		if (str[i] == '/')
 			return (1);
 	}
 	return (0);
