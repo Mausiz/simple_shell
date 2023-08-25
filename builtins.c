@@ -1,11 +1,7 @@
 #include "shell.h"
-/**
- * check_for_builtins - ...
- * @info: vars
- *
- * Return: pointer to func/NULL
- */
-int (*check_for_builtins(info_t *info))(info_t *info)
+#include "shell.h"
+
+void (*check_for_builtins(info_t *info))(info_t *info)
 {
     unsigned int k;
     builtins_t check[] =
