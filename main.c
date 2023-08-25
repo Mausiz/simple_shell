@@ -29,7 +29,7 @@ int main(int argc __attribute__((unused)), char **argv, char **environ)
 {
 	size_t len_buffer = 0;
 	unsigned int is_pipe = 0, i;
-	info_t info = {NULL, NULL, NULL, 0, NULL, 0, NULL};
+	info_t info = {NULL, NULL, NULL, 0, NULL, 0, NULL, 0};
 
 	info.argv = argv;
 	info.environ = make_environ(environ);

@@ -5,26 +5,26 @@
  *
  * Return: pointer to func/NULL
  */
-int (*f)(info_t *);
+int (*check_for_builtins(info_t *info))(info_t *info)
 {
-	unsigned int k;
-	builtins_t check[] =
-        {
-                {"exit", new_exit},
-                {"environ", _environ},
-                {"setenviron", new_setenviron},
-                {"unsetenviron", new_unsetenviron},
-                {NULL, NULL}
-        };
+    unsigned int k;
+    builtins_t check[] =
+    {
+        {"exit", new_exit},
+        {"environ", _environ},
+        {"setenviron", new_setenviron},
+        {"unsetenviron", new_unsetenviron},
+        {NULL, NULL}
+    };
 
-        for (k = 0; check[k].f != NULL; k++)
-        {
-                if (_strcmp(info->av[0], check[k].name) == 0)
-                        break;
-        }
-        if (check[k].d != NULL)
-                check[k].d(info);
-        return (check[k]).d;
+    for (k = 0; check[k].f != NULL; k++)
+    {
+        if (_strcmp(info->av[0], check[k].type) == 0)
+            break;
+    }
+    if (check[k].f != NULL)
+        check[k].f(info);
+    return check[k].f;
 }
 
 /**
