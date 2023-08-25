@@ -182,7 +182,7 @@ void _environ(info_t *info);
 void new_setenviron(info_t *info);
 void new_unsetenviron(info_t *info);
 void new_exit(info_t *info);
-void (*check_for_builtins(info_t *info))(info_t *info);
+int (*check_for_builtins(info_t *info))(info_t *info);
 char *_strdup(char *strtodup);
 int _strcmp(char *strcmp1, char *strcmp2);
 
