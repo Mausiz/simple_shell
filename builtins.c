@@ -5,7 +5,7 @@
  *
  * Return: pointer to func/NULL
  */
-int (*f)(info_t *)
+int (*f)(info_t *);
 {
 	unsigned int k;
 	builtins_t check[] =
@@ -33,7 +33,7 @@ int (*f)(info_t *)
  * 
  * Return: void
  */
-int new_exit(info_t *info)
+void new_exit(info_t *info)
 {
         int exstatus;
  
@@ -84,7 +84,7 @@ void _environ(info_t *info)
  *
  * Return: void
  */
-int new_setenviron(info_t *info)
+void new_setenviron(info_t *info)
 {
 	char **key;
 	char *var;
@@ -121,7 +121,7 @@ int new_setenviron(info_t *info)
  *
  * Return: void
  */
-int new_unsetenviron(info_t *info)
+void new_unsetenviron(info_t *info)
 {
         char **key, **newenviron;
         unsigned int i, j;
