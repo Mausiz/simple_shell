@@ -1,157 +1,97 @@
 #include "shell.h"
 
 /**
- * check_for_builtins - checks if the command is a builtin
- * @vars: variables
- * Return: pointer to the function or NULL
+ * _myexit - exitss the shell
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: exits with a given exit status
+ *         (0) if info.argv[0] != "exit"
  */
-void (*check_for_builtins(vars_t *vars))(vars_t *vars)
+int _myexit(info_t *info)
 {
-	unsigned int i;
-	builtins_t check[] = {
-		{"exit", new_exit},
-		{"env", _env},
-		{"setenv", new_setenv},
-		{"unsetenv", new_unsetenv},
-		{NULL, NULL}
-	};
+	int exitcheck;
 
-	for (i = 0; check[i].f != NULL; i++)
+	if (info->argv[1])  /* If there is an exit arguement */
 	{
-		if (_strcmpr(vars->av[0], check[i].name) == 0)
-			break;
-	}
-	if (check[i].f != NULL)
-		check[i].f(vars);
-	return (check[i].f);
-}
-
-/**
- * new_exit - exit program
- * @vars: variables
- * Return: void
- */
-void new_exit(vars_t *vars)
-{
-	int status;
-
-	if (_strcmpr(vars->av[0], "exit") == 0 && vars->av[1] != NULL)
-	{
-		status = _atoi(vars->av[1]);
-		if (status == -1)
+		exitcheck = _erratoi(info->argv[1]);
+		if (exitcheck == -1)
 		{
-			vars->status = 2;
-			print_error(vars, ": Illegal number: ");
-			_puts2(vars->av[1]);
-			_puts2("\n");
-			free(vars->commands);
-			vars->commands = NULL;
-			return;
+			info->status = 2;
+			print_error(info, "Illegal number: ");
+			_eputs(info->argv[1]);
+			_eputchar('\n');
+			return (1);
 		}
-		vars->status = status;
+		info->err_num = _erratoi(info->argv[1]);
+		return (-2);
 	}
-	free(vars->buffer);
-	free(vars->av);
-	free(vars->commands);
-	free_env(vars->env);
-	exit(vars->status);
+	info->err_num = -1;
+	return (-2);
 }
 
 /**
- * _env - prints the current environment
- * @vars: struct of variables
- * Return: void.
+ * _mycd - changes the current directory of the process
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: Always 0
  */
-void _env(vars_t *vars)
+int _mycd(info_t *info)
 {
-	unsigned int i;
+	char *s, *dir, buffer[1024];
+	int chdir_ret;
 
-	for (i = 0; vars->env[i]; i++)
+	s = getcwd(buffer, 1024);
+	if (!s)
+		_puts("TODO: >>getcwd failure emsg here<<\n");
+	if (!info->argv[1])
 	{
-		_puts(vars->env[i]);
-		_puts("\n");
+		dir = _getenv(info, "HOME=");
+		if (!dir)
+			chdir_ret = /* TODO: what should this be? */
+				chdir((dir = _getenv(info, "PWD=")) ? dir : "/");
+		else
+			chdir_ret = chdir(dir);
 	}
-	vars->status = 0;
-}
-
-/**
- * new_setenv - create a new environment variable, or edit an existing variable
- * @vars: pointer to struct of variables
- *
- * Return: void
- */
-void new_setenv(vars_t *vars)
-{
-	char **key;
-	char *var;
-
-	if (vars->av[1] == NULL || vars->av[2] == NULL)
+	else if (_strcmp(info->argv[1], "-") == 0)
 	{
-		print_error(vars, ": Incorrect number of arguments\n");
-		vars->status = 2;
-		return;
+		if (!_getenv(info, "OLDPWD="))
+		{
+			_puts(s);
+			_putchar('\n');
+			return (1);
+		}
+		_puts(_getenv(info, "OLDPWD=")), _putchar('\n');
+		chdir_ret = /* TODO: what should this be? */
+			chdir((dir = _getenv(info, "OLDPWD=")) ? dir : "/");
 	}
-	key = find_key(vars->env, vars->av[1]);
-	if (key == NULL)
-		add_key(vars);
+	else
+		chdir_ret = chdir(info->argv[1]);
+	if (chdir_ret == -1)
+	{
+		print_error(info, "can't cd to ");
+		_eputs(info->argv[1]), _eputchar('\n');
+	}
 	else
 	{
-		var = add_value(vars->av[1], vars->av[2]);
-		if (var == NULL)
-		{
-			print_error(vars, NULL);
-			free(vars->buffer);
-			free(vars->commands);
-			free(vars->av);
-			free_env(vars->env);
-			exit(127);
-		}
-		free(*key);
-		*key = var;
+		_setenv(info, "OLDPWD", _getenv(info, "PWD="));
+		_setenv(info, "PWD", getcwd(buffer, 1024));
 	}
-	vars->status = 0;
+	return (0);
 }
 
 /**
- * new_unsetenv - remove an environment variable
- * @vars: pointer to a struct of variables
- *
- * Return: void
+ * _myhelp - changes the current directory of the process
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: Always 0
  */
-void new_unsetenv(vars_t *vars)
+int _myhelp(info_t *info)
 {
-	char **key, **newenv;
+	char **arg_array;
 
-	unsigned int i, j;
-
-	if (vars->av[1] == NULL)
-	{
-		print_error(vars, ": Incorrect number of arguments\n");
-		vars->status = 2;
-		return;
-	}
-	key = find_key(vars->env, vars->av[1]);
-	if (key == NULL)
-	{
-		print_error(vars, ": No variable to unset");
-		return;
-	}
-	for (i = 0; vars->env[i] != NULL; i++)
-		;
-	newenv = malloc(sizeof(char *) * i);
-	if (newenv == NULL)
-	{
-		print_error(vars, NULL);
-		vars->status = 127;
-		new_exit(vars);
-	}
-	for (i = 0; vars->env[i] != *key; i++)
-		newenv[i] = vars->env[i];
-	for (j = i + 1; vars->env[j] != NULL; j++, i++)
-		newenv[i] = vars->env[j];
-	newenv[i] = NULL;
-	free(*key);
-	free(vars->env);
-	vars->env = newenv;
-	vars->status = 0;
+	arg_array = info->argv;
+	_puts("help call works. Function not yet implemented \n");
+	if (0)
+		_puts(*arg_array); /* temp att_unused workaround */
+	return (0);
 }

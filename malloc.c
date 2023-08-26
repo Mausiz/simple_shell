@@ -1,76 +1,62 @@
 #include "shell.h"
 
 /**
- * print_error - prints error messages to standard error
- * @vars: pointer to struct of variables
- * @msg: message to print
- *
- * Return: void
+ **_memset - fill memory with a constant byte
+ *@s: the pointer to the memory area
+ *@b: the byte to fill *s with
+ *@n: the amount of bytes to be filled
+ *Return: (s) a pointer to the memory area s
  */
-void print_error(vars_t *vars, char *msg)
+char *_memset(char *s, char b, unsigned int n)
 {
-	char *count;
+	unsigned int i;
 
-	_puts2(vars->argv[0]);
-	_puts2(": ");
-	count = _uitoa(vars->count);
-	_puts2(count);
-	free(count);
-	_puts2(": ");
-	_puts2(vars->av[0]);
-	if (msg)
-	{
-		_puts2(msg);
-	}
-	else
-		perror("");
+	for (i = 0; i < n; i++)
+		s[i] = b;
+	return (s);
 }
 
 /**
- * _puts2 - prints a string to standard error
- * @str: string to print
- *
- * Return: void
+ * ffree - frees a string of strings
+ * @pp: string of strings
  */
-void _puts2(char *str)
+void ffree(char **pp)
 {
-	ssize_t num, len;
+	char **a = pp;
 
-	num = _strlen(str);
-	len = write(STDERR_FILENO, str, num);
-	if (len != num)
-	{
-		perror("Fatal Error");
-		exit(1);
-	}
-
+	if (!pp)
+		return;
+	while (*pp)
+		free(*pp++);
+	free(a);
 }
 
 /**
- * _uitoa - converts an unsigned int to a string
- * @count: unsigned int to convert
+ * _realloc - reallocates a block of memory
+ * @ptr: pointer to previous malloc'ated block
+ * @old_size: byte size of previous block
+ * @new_size: byte size of new block
  *
- * Return: pointer to the converted string
+ * Return: pointer to da ol'block nameen.
  */
-char *_uitoa(unsigned int count)
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
 {
-	char *numstr;
-	unsigned int tmp, digits;
+	char *p;
 
-	tmp = count;
-	for (digits = 0; tmp != 0; digits++)
-		tmp /= 10;
-	numstr = malloc(sizeof(char) * (digits + 1));
-	if (numstr == NULL)
-	{
-		perror("Fatal Error1");
-		exit(127);
-	}
-	numstr[digits] = '\0';
-	for (--digits; count; --digits)
-	{
-		numstr[digits] = (count % 10) + '0';
-		count /= 10;
-	}
-	return (numstr);
+	if (!ptr)
+		return (malloc(new_size));
+	if (!new_size)
+		return (free(ptr), NULL);
+	if (new_size == old_size)
+		return (ptr);
+
+	p = malloc(new_size);
+	if (!p)
+		return (NULL);
+
+	old_size = old_size < new_size ? old_size : new_size;
+	while (old_size--)
+		p[old_size] = ((char *)ptr)[old_size];
+	free(ptr);
+	return (p);
 }
