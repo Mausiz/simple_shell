@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-This is a basic UNIX command line interface that emulates the functionality of a simple shell, along with additional features. It was developed entirely in C as a significant project for ALX Africa Software Engineering.
+This is a basic UNIX command line interface that emulates the functionality of a simple shell, along with additional features. It was developed entirely in C as a significant project for ALX Africa Software Engineering. This is the final result after the testing stage
 
 Created by : Mausiz Githaiga and CALEB FADARE.
 =======
